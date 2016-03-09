@@ -11,6 +11,6 @@ Example:
 IDL> x = randomn(seed, 20)
 IDL> y = randomn(seed, 20)
 IDL> plot, psym=6, x, y, /isotropic, /ynozero
-IDL> result = **lec_qhull**(x, y, /plot_tri, /plot_vor)
+IDL> result = LEC_QHULL(x, y, /plot_tri, /plot_vor)
 IDL> tvcircle, result.radius, result.x, result.y, /data
 ```
