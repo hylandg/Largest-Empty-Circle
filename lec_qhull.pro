@@ -93,10 +93,11 @@ if (keyword_set(plot_vor)) then begin
 	for ii = 0, n_elements(vdiagram[2,*])-1 do begin
 		vdiag = vdiagram[*,ii]
 		if (vdiag[2] ge 0) then $
-			plots, vvert[*,vdiag[2:3]], linestyle=1 $
+			plots, vvert[*,vdiag[2:3]], linestyle=1, noclip=0 $
 		else begin
 			j = -vdiag[2] - 1
-			plots, [[vvert[*,vdiag[3]]],[vunvert[*,j]]], line=2
+			plots, [[vvert[*,vdiag[3]]],[vunvert[*,j]]], line=2, $
+				noclip=0
 		endelse
 	endfor
 endif
