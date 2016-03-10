@@ -10,7 +10,7 @@ Example:
 ```IDL
 IDL> x = randomn(seed, 20)
 IDL> y = randomn(seed, 20)
-IDL> plot, psym=6, x, y, /isotropic, /ynozero
+IDL> plot, x, y, psym=6, /isotropic, /ynozero
 IDL> result = LEC_QHULL(x, y, /plot_tri, /plot_vor)
 IDL> tvcircle, result.radius, result.x, result.y, /data
 ```
