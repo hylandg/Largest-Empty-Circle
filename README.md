@@ -14,4 +14,4 @@ IDL> plot, psym=6, x, y, /isotropic, /ynozero
 IDL> result = LEC_QHULL(x, y, /plot_tri, /plot_vor)
 IDL> tvcircle, result.radius, result.x, result.y, /data
 ```
-![lec_example](https://cloud.githubusercontent.com/assets/9730969/13659036/0ac34c8c-e6d1-11e5-98e5-6b091e7c4dba.gif)
+![lec_example](https://cloud.githubusercontent.com/assets/9730969/13685893/0955d536-e767-11e5-9d3b-c30266ab3a99.gif)
