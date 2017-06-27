@@ -42,7 +42,8 @@ b = b[sort(atan(y[b]-mean(y[b]),x[b]-mean(x[b])))]
 
 xmin = min(x[b], max=xmax)
 ymin = min(y[b], max=ymax)
-vunvert = dblarr(3,n_elements(vnorm[0,*]))
+vunvert = dblarr(2,n_elements(vnorm[0,*]))
+kun = lonarr(n_elements(vnorm[0,*]))
 
 unbnd = where(vdiagram[2,*] lt 0, nunbnd)
 for ii = 0, nunbnd-1 do begin
@@ -74,16 +75,12 @@ for ii = 0, nunbnd-1 do begin
 		dy = double(ymax - ymin)
 		dx = -vnorm[1,j]*dy/vnorm[0,j]
 	endelse
-	dxkv = x[vdiag[0]] - x[kv]
-	dykv = y[vdiag[0]] - y[kv]
-	dd = dx*dxkv + dy*dykv
+	dd = dx*(x[vdiag[0]] - x[kv]) + dy*(y[vdiag[0]] - y[kv])
 
-	vunvert[0:1,j] = (dd lt 0.)? xystart-[dx,dy] : xystart+[dx,dy]
+	vunvert[*,j] = (dd lt 0.)? xystart-[dx,dy] : xystart+[dx,dy]
 
-	; Save the distance to the next closest point for the forced check on
-	; unbound ridge intersections later on.
+	kun[j] = kv		; save kv for the forced check later on
 
-	vunvert[2,j] = dxkv^2 + dykv^2
 endfor
 
 ; Optionally plot the Delaunay triagulation (contained in variable "tr")
@@ -103,8 +100,8 @@ if (keyword_set(plot_vor)) then begin
 			plots, vvert[*,vdiag[2:3]], linestyle=1, noclip=0 $
 		else begin
 			j = -vdiag[2] - 1
-			plots, [[vvert[*,vdiag[3]]],[vunvert[0:1,j]]], line=2, $
-				noclip=0
+			plots, [[vvert[*,vdiag[3]]],[vunvert[*,j]]], $
+				line=2, noclip=0
 		endelse
 	endfor
 endif
@@ -152,9 +149,10 @@ for i = 0, n_elements(vdiagram[2,*])-1 do begin
 		pv3 = vvert[*,vdiag[2]]
 		pv4 = vvert[*,vdiag[3]]
 	endif else begin
-		unbound = -vdiag[2] - 1
+		unbound = 1
+		k = -vdiag[2] - 1
 		pv3 = vvert[*,vdiag[3]]
-		pv4 = vunvert[0:1,unbound]
+		pv4 = vunvert[*,k]
 ;		plots, pv3, psym=6, symsize=2
 	endelse
 
@@ -164,18 +162,23 @@ for i = 0, n_elements(vdiagram[2,*])-1 do begin
 		p = segment_intersect(pb1, pb2, pv3, pv4, unbound=unbound)
 		if (n_elements(p) gt 1) then begin
 
-			dmin = (p[0] - x[vdiag[0]])^2 + (p[1] - y[vdiag[0]])^2
+			d0 = (p[0] - x[vdiag[0]])^2 + (p[1] - y[vdiag[0]])^2
 
-			; This is the special check on unbound ridge
-			; intersections - if it is valid it should be closer
-			; then the next closest point (previously saved in
-			; the vunvert array).
+			; Double-check the validity of the intersection by
+			; checking it is closer to both of the ridge points
+			; (vdiag[0:1]) than the next closest point (whose
+			; index was previously saved in kun).
 
-			if ((unbound gt 0) and $
-				(dmin gt vunvert[2,unbound])) then dmin = 0.
+			if (unbound) then begin
+				d1 = (p[0] - x[vdiag[1]])^2 + $
+					(p[1] - y[vdiag[1]])^2
+				dk = (p[0] - x[kun[k]])^2 + $
+					(p[1] - y[kun[k]])^2
+				if (dk lt d0 or dk lt d1) then d0 = 0.
+			endif
 
-			if (dmin gt dmax) then begin
-				dmax = dmin
+			if (d0 gt dmax) then begin
+				dmax = d0
 				pmax = p
 			endif
 ;			if (unbound) then plots, p, psym=4, symsize=2
